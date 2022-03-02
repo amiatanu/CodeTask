@@ -1,17 +1,16 @@
 let userAns = [];
 let questions = [];
+let actualAns = [];
 let max;
 let index = 0;
-let actualAns = [];
+
 function fetchdata() {
     fetch('https://opentdb.com/api.php?amount=25')
         .then(response => response.json())
         .then(data => {
             questions = data.results
-            //console.log(questions)
             max = questions.length;
             displaydata(index);
-        //    console.log(data);
         });
 }
 fetchdata();
@@ -27,11 +26,19 @@ function fetchPrev() {
     displaydata(index);
 }
 function displaydata(index) {
-    if (index >= max || index < 0) { alert("Out of range"); return; }
+    if(index<0){
+        index=0;
+        document.getElementById("pre").disabled = true;
+        return;
+    }
+    if(index>=max){
+        index=max-1;
+        document.getElementById("next").disabled = true;
+        return;
+    }
     document.getElementById('options').innerHTML = "";
     quesDisplay(index);
     optiondisp(index);
-
 }
 
 function quesDisplay(index) {
@@ -41,6 +48,8 @@ function quesDisplay(index) {
         
 }
 function optiondisp(index) {
+    document.getElementById("next").disabled = false
+    document.getElementById("pre").disabled = false;
     let option =[]
     for(i=0;i<questions[index].incorrect_answers.length;i++)
         option.push(questions[index].incorrect_answers[i]);
@@ -51,6 +60,14 @@ function optiondisp(index) {
     let op = `<label class="options">${option[i]}<input type="radio" name="radio" onchange="saveAns()" value="${option[i]}"><span class="checkmark"></span> </label>`;
     document.getElementById('options').innerHTML += op;
     }
+    showAns(index);
+}
+function showAns(index){ 
+        var radios = document.getElementsByName("radio")
+        const ans = userAns[index];
+        for (var i = 0; i < radios.length; i++)
+            if(radios[i].value==ans)
+                radios[i].checked=true;
 }
 
 function saveAns() {
@@ -72,7 +89,6 @@ function marksCalculate() {
     total = 0;
     for (let index = 0; index < userAns.length; index++) {
         total += userAns[index] == actualAns[index] ? 1 : 0;
-       // console.log(total)
     }
 
     let tag = `<div class="card text-white bg-success mb-3" style="max-width: 18rem;">
